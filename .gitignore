@@ -1,0 +1,13 @@
+# Maven build artifacts
+target/
+
+# IDE files
+.nb-gradle/
+nbproject/private/
+.settings/
+.classpath
+.project
+.idea/
+*.iws
+*.iml
+*.ipr
