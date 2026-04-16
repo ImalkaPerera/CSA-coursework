@@ -1,7 +1,9 @@
 package com.smartcampus;
 
 import com.smartcampus.resource.DiscoveryResource;
+import com.smartcampus.resource.SensorResource;
 import com.smartcampus.resource.RoomResource;
+import com.smartcampus.exception.LinkedResourceNotFoundExceptionMapper;
 import com.smartcampus.exception.RoomNotEmptyExceptionMapper;
 
 import javax.ws.rs.ApplicationPath;
@@ -16,7 +18,9 @@ public class SmartCampusApplication extends Application {
         Set<Class<?>> classes = new HashSet<>();
         classes.add(DiscoveryResource.class);
         classes.add(RoomResource.class);
+        classes.add(SensorResource.class);
         classes.add(RoomNotEmptyExceptionMapper.class);
+        classes.add(LinkedResourceNotFoundExceptionMapper.class);
         return classes;
     }
 }
