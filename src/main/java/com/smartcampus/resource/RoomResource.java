@@ -1,9 +1,11 @@
 package com.smartcampus.resource;
 
 import com.smartcampus.model.Room;
+import com.smartcampus.exception.RoomNotEmptyException;
 import com.smartcampus.store.DataStore;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -64,5 +66,31 @@ public class RoomResource {
         }
 
         return Response.ok(room).build();
+    }
+
+    @DELETE
+    @Path("/{roomId}")
+    public Response deleteRoom(@PathParam("roomId") String roomId) {
+        Room room = DataStore.getRooms().get(roomId);
+        if (room == null) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Room not found");
+            error.put("roomId", roomId);
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(error)
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+
+        long sensorCount = DataStore.getSensors().values().stream()
+                .filter(sensor -> roomId.equals(sensor.getRoomId()))
+                .count();
+
+        if (sensorCount > 0) {
+            throw new RoomNotEmptyException(roomId, (int) sensorCount);
+        }
+
+        DataStore.getRooms().remove(roomId);
+        return Response.noContent().build();
     }
 }
