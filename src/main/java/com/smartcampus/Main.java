@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.net.URI;
 
 public class Main {
-    public static final String BASE_URI = "http://localhost:8080/";
+    public static final String BASE_URI = "http://localhost:8080/api/v1/";
 
     public static HttpServer startServer() {
         // Create a resource config that scans for JAX-RS resources and providers
@@ -22,7 +22,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         final HttpServer server = startServer();
-        System.out.println(String.format("Smart Campus API started at %sapi/v1", BASE_URI));
+        System.out.println(String.format("Smart Campus API started at %s", BASE_URI));
         System.out.println("Hit enter to stop it...");
         System.in.read();
         server.shutdownNow();
