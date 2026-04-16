@@ -11,6 +11,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -26,8 +28,21 @@ import java.util.UUID;
 public class SensorResource {
 
     @GET
-    public Response getAllSensors() {
-        return Response.ok(new ArrayList<>(DataStore.getSensors().values())).build();
+    public Response getAllSensors(@QueryParam("type") String type) {
+        ArrayList<Sensor> sensors = new ArrayList<>(DataStore.getSensors().values());
+
+        if (type == null || type.trim().isEmpty()) {
+            return Response.ok(sensors).build();
+        }
+
+        ArrayList<Sensor> filteredSensors = new ArrayList<>();
+        for (Sensor sensor : sensors) {
+            if (sensor.getType() != null && sensor.getType().equalsIgnoreCase(type)) {
+                filteredSensors.add(sensor);
+            }
+        }
+
+        return Response.ok(filteredSensors).build();
     }
 
     @POST
@@ -72,5 +87,23 @@ public class SensorResource {
         }
 
         return Response.ok(sensor).build();
+    }
+
+    @Path("/{sensorId}/readings")
+    public SensorReadingResource getSensorReadings(@PathParam("sensorId") String sensorId) {
+        if (!DataStore.getSensors().containsKey(sensorId)) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Sensor not found");
+            error.put("sensorId", sensorId);
+
+            throw new WebApplicationException(
+                    Response.status(Response.Status.NOT_FOUND)
+                            .entity(error)
+                            .type(MediaType.APPLICATION_JSON)
+                            .build()
+            );
+        }
+
+        return new SensorReadingResource(sensorId);
     }
 }
