@@ -8,6 +8,7 @@ import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+// Logs all HTTP requests and responses
 @Provider
 public class LoggingFilter implements ContainerRequestFilter, ContainerResponseFilter {
     private static final Logger LOGGER = Logger.getLogger(LoggingFilter.class.getName());

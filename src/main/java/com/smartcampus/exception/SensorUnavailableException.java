@@ -7,7 +7,5 @@ public class SensorUnavailableException extends RuntimeException {
         this.sensorId = sensorId;
     }
 
-    public String getSensorId() {
-        return sensorId;
-    }
+    public String getSensorId() { return sensorId; }
 }

@@ -2,6 +2,7 @@ package com.smartcampus.resource;
 
 import com.smartcampus.model.Room;
 import com.smartcampus.exception.RoomNotEmptyException;
+import com.smartcampus.exception.ErrorResponse;
 import com.smartcampus.store.DataStore;
 
 import javax.ws.rs.Consumes;
@@ -17,27 +18,27 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Path("/rooms")
 @Produces(MediaType.APPLICATION_JSON)
 public class RoomResource {
 
+    // GET /api/v1/rooms — list all rooms
     @GET
     public Response getAllRooms() {
-        return Response.ok(new ArrayList<>(DataStore.getRooms().values())).build();
+        return Response.ok(new ArrayList<>(DataStore.getInstance().getAllRooms())).build();
     }
 
+    // POST /api/v1/rooms — create a room (returns 201 + Location header)
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createRoom(Room room, @Context UriInfo uriInfo) {
         if (room == null || room.getName() == null || room.getName().trim().isEmpty() || room.getCapacity() <= 0) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Invalid room data");
-            error.put("reason", "name and a positive capacity are required");
-            return Response.status(Response.Status.BAD_REQUEST).entity(error).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ErrorResponse("Invalid room data", "name and a positive capacity are required"))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
         }
 
         if (room.getId() == null || room.getId().trim().isEmpty()) {
@@ -48,41 +49,43 @@ public class RoomResource {
             room.setSensorIds(new ArrayList<>());
         }
 
-        DataStore.getRooms().put(room.getId(), room);
+        DataStore.getInstance().upsertRoom(room);
 
         URI location = uriInfo.getAbsolutePathBuilder().path(room.getId()).build();
-        return Response.created(location).entity(room).build();
+        return Response.created(location)
+                .entity(room)
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 
+    // GET /api/v1/rooms/{roomId} — get room by ID
     @GET
     @Path("/{roomId}")
     public Response getRoomById(@PathParam("roomId") String roomId) {
-        Room room = DataStore.getRooms().get(roomId);
+        Room room = DataStore.getInstance().getRoom(roomId);
         if (room == null) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Room not found");
-            error.put("roomId", roomId);
-            return Response.status(Response.Status.NOT_FOUND).entity(error).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorResponse("Room not found", "No room exists with the given ID", roomId))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
         }
 
         return Response.ok(room).build();
     }
 
+    // DELETE /api/v1/rooms/{roomId} — delete room (409 if has sensors, 204 if empty)
     @DELETE
     @Path("/{roomId}")
     public Response deleteRoom(@PathParam("roomId") String roomId) {
-        Room room = DataStore.getRooms().get(roomId);
+        Room room = DataStore.getInstance().getRoom(roomId);
         if (room == null) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Room not found");
-            error.put("roomId", roomId);
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(error)
+                    .entity(new ErrorResponse("Room not found", "No room exists with the given ID", roomId))
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
 
-        long sensorCount = DataStore.getSensors().values().stream()
+        long sensorCount = DataStore.getInstance().getAllSensors().stream()
                 .filter(sensor -> roomId.equals(sensor.getRoomId()))
                 .count();
 
@@ -90,7 +93,7 @@ public class RoomResource {
             throw new RoomNotEmptyException(roomId, (int) sensorCount);
         }
 
-        DataStore.getRooms().remove(roomId);
+        DataStore.getInstance().deleteRoom(roomId);
         return Response.noContent().build();
     }
 }

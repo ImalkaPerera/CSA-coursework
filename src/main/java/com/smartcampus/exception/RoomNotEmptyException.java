@@ -9,11 +9,6 @@ public class RoomNotEmptyException extends RuntimeException {
         this.sensorCount = sensorCount;
     }
 
-    public String getRoomId() {
-        return roomId;
-    }
-
-    public int getSensorCount() {
-        return sensorCount;
-    }
+    public String getRoomId() { return roomId; }
+    public int getSensorCount() { return sensorCount; }
 }

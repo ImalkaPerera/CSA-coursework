@@ -7,7 +7,5 @@ public class LinkedResourceNotFoundException extends RuntimeException {
         this.missingRoomId = missingRoomId;
     }
 
-    public String getMissingRoomId() {
-        return missingRoomId;
-    }
+    public String getMissingRoomId() { return missingRoomId; }
 }
