@@ -3,6 +3,7 @@ package com.smartcampus;
 import com.smartcampus.resource.DiscoveryResource;
 import com.smartcampus.resource.SensorResource;
 import com.smartcampus.resource.RoomResource;
+import com.smartcampus.exception.GlobalExceptionMapper;
 import com.smartcampus.exception.LinkedResourceNotFoundExceptionMapper;
 import com.smartcampus.exception.RoomNotEmptyExceptionMapper;
 import com.smartcampus.exception.SensorUnavailableExceptionMapper;
@@ -23,6 +24,7 @@ public class SmartCampusApplication extends Application {
         classes.add(RoomNotEmptyExceptionMapper.class);
         classes.add(LinkedResourceNotFoundExceptionMapper.class);
         classes.add(SensorUnavailableExceptionMapper.class);
+        classes.add(GlobalExceptionMapper.class);
         return classes;
     }
 }
