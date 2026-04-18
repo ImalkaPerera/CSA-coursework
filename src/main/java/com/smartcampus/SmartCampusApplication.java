@@ -1,5 +1,6 @@
 package com.smartcampus;
 
+import com.smartcampus.filter.LoggingFilter;
 import com.smartcampus.resource.DiscoveryResource;
 import com.smartcampus.resource.SensorResource;
 import com.smartcampus.resource.RoomResource;
@@ -25,6 +26,7 @@ public class SmartCampusApplication extends Application {
         classes.add(LinkedResourceNotFoundExceptionMapper.class);
         classes.add(SensorUnavailableExceptionMapper.class);
         classes.add(GlobalExceptionMapper.class);
+        classes.add(LoggingFilter.class);
         return classes;
     }
 }
