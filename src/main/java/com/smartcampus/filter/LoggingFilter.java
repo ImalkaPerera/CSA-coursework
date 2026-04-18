@@ -14,11 +14,11 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        LOGGER.info("-> " + requestContext.getMethod() + " " + requestContext.getUriInfo().getRequestUri().getPath());
+        LOGGER.info("→ " + requestContext.getMethod() + " " + requestContext.getUriInfo().getRequestUri().getPath());
     }
 
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
-        LOGGER.info("<- " + responseContext.getStatus() + " " + requestContext.getUriInfo().getRequestUri().getPath());
+        LOGGER.info("← " + responseContext.getStatus() + " " + requestContext.getUriInfo().getRequestUri().getPath());
     }
 }
