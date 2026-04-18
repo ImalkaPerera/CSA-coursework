@@ -18,6 +18,6 @@ public class LinkedResourceNotFoundExceptionMapper implements ExceptionMapper<Li
         error.put("reason", "The specified roomId does not exist in the system");
         error.put("roomId", exception.getMissingRoomId());
 
-        return Response.status(Response.Status.UNPROCESSABLE_ENTITY).entity(error).build();
+        return Response.status(422).entity(error).build();
     }
 }
