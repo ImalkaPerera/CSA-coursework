@@ -15,6 +15,20 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
     public Response toResponse(Throwable exception) {
         LOGGER.warning(exception.getClass().getName() + ": " + exception.getMessage());
 
+        if (exception instanceof javax.ws.rs.WebApplicationException) {
+            Response response = ((javax.ws.rs.WebApplicationException) exception).getResponse();
+            if (!response.hasEntity()) {
+                return Response.fromResponse(response)
+                        .entity(new ErrorResponse(
+                                "HTTP " + response.getStatus(),
+                                exception.getMessage()
+                        ))
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
+            }
+            return response;
+        }
+
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(new ErrorResponse(
                         "Internal Server Error",

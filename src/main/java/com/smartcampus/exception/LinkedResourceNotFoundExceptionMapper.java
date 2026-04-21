@@ -10,7 +10,7 @@ import javax.ws.rs.ext.Provider;
 public class LinkedResourceNotFoundExceptionMapper implements ExceptionMapper<LinkedResourceNotFoundException> {
     @Override
     public Response toResponse(LinkedResourceNotFoundException exception) {
-        return Response.status(Response.Status.UNPROCESSABLE_ENTITY)
+        return Response.status(422)
                 .entity(new ErrorResponse(
                         "Dependency validation failed",
                         "The specified roomId does not exist in the system",

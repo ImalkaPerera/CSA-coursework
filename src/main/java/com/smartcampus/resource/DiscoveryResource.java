@@ -8,7 +8,7 @@ import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 
-@Path("/")
+@Path("")
 @Produces(MediaType.APPLICATION_JSON)
 public class DiscoveryResource {
 
