@@ -7,7 +7,7 @@
     <groupId>com.smartcampus</groupId>
     <artifactId>smart-campus-api</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -17,11 +17,25 @@
     </properties>
 
     <dependencies>
-        <!-- Jersey Grizzly Container -->
+        <!-- Jersey Servlet Container -->
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        
+        <!-- Jersey Grizzly Container (for embedded server) -->
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-grizzly2-http</artifactId>
             <version>${jersey.version}</version>
+        </dependency>
+        
+        <!-- Grizzly HTTP Server -->
+        <dependency>
+            <groupId>org.glassfish.grizzly</groupId>
+            <artifactId>grizzly-http-server</artifactId>
+            <version>2.4.4</version>
         </dependency>
 
         <!-- Jersey JSON Support (Jackson) -->
@@ -29,13 +43,6 @@
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
             <version>${jersey.version}</version>
-        </dependency>
-
-        <!-- Grizzly HTTP Server -->
-        <dependency>
-            <groupId>org.glassfish.grizzly</groupId>
-            <artifactId>grizzly-http-server</artifactId>
-            <version>2.4.4</version>
         </dependency>
 
         <!-- Jackson Databind -->
@@ -65,11 +72,21 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+            
+            <!-- Exec Maven Plugin to run via embedded Grizzly server -->
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>com.smartcampus.Main</mainClass>
+                    <mainClass>com.smartcampus.SmartCampusApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>

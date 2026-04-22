@@ -4,34 +4,42 @@
 Smart Campus API is a JAX-RS REST service for managing rooms, sensors, and sensor readings in a university campus environment. It uses in-memory data structures only, which keeps the coursework simple to run, test, and demonstrate.
 
 ## How to Build and Run
-### 1. Clone the repository
+
+### Option 1: Terminal (Embedded Grizzly Server)
+**Clone the project:**
 ```bash
-git clone <your-github-repo-url>
-cd CSA-coursework
+git clone https://github.com/thiviru7715/CSA-CW.git
+cd CSA-CW
 ```
-
-### Open in NetBeans (Marker-Friendly)
-1. Open NetBeans.
-2. Go to File -> Open Project.
-3. Select the repository folder that contains pom.xml.
-4. NetBeans will detect it as a Maven project automatically.
-5. Use the Projects view, then run the main class `com.smartcampus.Main`.
-
-### 2. Build the project
+**Compile the project:**
 ```bash
-mvn clean package
+mvn clean compile
 ```
-
-### 3. Run the API
+**Launch the server:**
 ```bash
 mvn exec:java
 ```
+**Verify:** You should see `Smart Campus API started at: http://localhost:8080/api/v1/` in your terminal. Press Enter to stop the server gracefully.
 
-The API starts at:
+### Option 2: NetBeans IDE (Tomcat Server)
+1. Open NetBeans.
+2. Select **File > Open Project**.
+3. Navigate to the downloaded `CSA-CW` folder and select it (NetBeans will detect it as a Maven project automatically).
+4. In the Projects explorer pane, right-click on the `CSA-CW` project name and select **Run**. NetBeans will automatically build and deploy the application to its configured Tomcat server.
+5. The API will be available at `http://localhost:8080/api/v1/` (assuming Tomcat is running on port 8080).
 
-```text
-http://localhost:8080/api/v1
+### Option 3: Standalone Tomcat Server (WAR Deployment)
+**Package the project:** In your terminal, run the following command to create a `.war` file:
+```bash
+mvn clean package
 ```
+**Locate the WAR file:** Navigate to the `target/` directory inside your project folder. You will find a file named `smart-campus-api-1.0-SNAPSHOT.war` (or simply `ROOT.war` if you renamed it).
+
+**Deploy to Tomcat:** Copy the `.war` file and paste it into the `webapps` folder of your Tomcat installation (e.g., `C:\apache-tomcat-9.0.x\webapps\`).
+
+**Start Tomcat:** Run Tomcat by executing `bin/startup.bat` (Windows) or `bin/startup.sh` (Mac/Linux).
+
+**Verify:** Tomcat will automatically deploy the application. Depending on what you named the `.war` file, the API will be available at `http://localhost:8080/<war-file-name>/api/v1/` (or `http://localhost:8080/api/v1/` if deployed as `ROOT.war`).
 
 ## API Endpoints
 | Method | Path | Description |
