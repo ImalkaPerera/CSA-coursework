@@ -33,7 +33,7 @@ public final class DataStore {
         if (room == null || room.getId() == null) {
             throw new IllegalArgumentException("Room and room.id must not be null");
         }
-        return rooms.put(room.getId(), room);
+        return rooms.putIfAbsent(room.getId(), room);
     }
 
     public Room deleteRoom(String id) { return rooms.remove(id); }
@@ -47,7 +47,7 @@ public final class DataStore {
         if (sensor == null || sensor.getId() == null) {
             throw new IllegalArgumentException("Sensor and sensor.id must not be null");
         }
-        return sensors.put(sensor.getId(), sensor);
+        return sensors.putIfAbsent(sensor.getId(), sensor);
     }
 
     public Sensor deleteSensor(String id) {

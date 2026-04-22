@@ -67,13 +67,22 @@ public class SensorResource {
             sensor.setStatus("ACTIVE");
         }
 
+        if (DataStore.getInstance().getSensor(sensor.getId()) != null) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(new ErrorResponse("Sensor already exists", "A sensor with this ID already exists", sensor.getId()))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+
         DataStore.getInstance().upsertSensor(sensor);
 
         Room room = DataStore.getInstance().getRoom(sensor.getRoomId());
         if (room.getSensorIds() == null) {
             room.setSensorIds(new ArrayList<>());
         }
-        room.getSensorIds().add(sensor.getId());
+        if (!room.getSensorIds().contains(sensor.getId())) {
+            room.getSensorIds().add(sensor.getId());
+        }
 
         URI location = uriInfo.getAbsolutePathBuilder().path(sensor.getId()).build();
         return Response.created(location)

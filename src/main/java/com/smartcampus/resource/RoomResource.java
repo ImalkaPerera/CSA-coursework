@@ -49,6 +49,13 @@ public class RoomResource {
             room.setSensorIds(new ArrayList<>());
         }
 
+        if (DataStore.getInstance().getRoom(room.getId()) != null) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(new ErrorResponse("Room already exists", "A room with this ID already exists", room.getId()))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+
         DataStore.getInstance().upsertRoom(room);
 
         URI location = uriInfo.getAbsolutePathBuilder().path(room.getId()).build();

@@ -10,6 +10,13 @@ git clone <your-github-repo-url>
 cd CSA-coursework
 ```
 
+### Open in NetBeans (Marker-Friendly)
+1. Open NetBeans.
+2. Go to File -> Open Project.
+3. Select the repository folder that contains pom.xml.
+4. NetBeans will detect it as a Maven project automatically.
+5. Use the Projects view, then run the main class `com.smartcampus.Main`.
+
 ### 2. Build the project
 ```bash
 mvn clean package
@@ -119,6 +126,12 @@ Instead of cramming all the sensor and reading logic into one massive class, I u
 ### Part 5.2
 When a client tries to create a sensor with a `roomId` that doesn't exist, I return 422 instead of 404. The reason is that 404 means the endpoint itself wasn't found, like the URL is wrong. But in this case the URL is perfectly fine — `POST /api/v1/sensors` exists. The problem is that the data inside the request body references a room that isn't there. The server can parse the JSON just fine, it just can't process the request because the referenced room is missing. That's exactly what 422 is for — "I understood what you sent me, but it doesn't make sense semantically."
 
+### Part 5.1
+If a client tries to delete a room that still has sensors assigned to it, the API returns 409 Conflict. That status fits because the request itself is valid, but it clashes with the current server state: the room cannot be removed until the linked sensors are dealt with first. A 409 tells the client that the resource exists and the method is allowed, but the operation cannot be completed because of a state conflict.
+
+### Part 5.3
+When a sensor is marked `MAINTENANCE`, it should not accept new readings. I mapped that to 403 Forbidden because the server understands the request, but the sensor's current state blocks the action. It is not a missing resource problem and it is not a parsing problem; it is an authorization-style refusal caused by business rules. The client would need to change the sensor status before the reading can be posted.
+
 ### Part 5.4
 Sending back stack traces in error responses is a really bad idea from a security standpoint. If an attacker triggers an error and gets a full stack trace, they can see things like the internal package structure (e.g. `com.smartcampus.store.DataStore`), which libraries and versions you're using (Jersey 2.39.1, Jackson, etc.), file paths on the server, method names, and sometimes even hints about your data layer. All of that makes it way easier for someone to craft targeted attacks because they basically get a map of your application internals for free. That's why in my project the `GlobalExceptionMapper` only returns a generic "something went wrong" message and the actual exception details stay in the server logs.
 
@@ -132,6 +145,6 @@ I implemented logging as a `ContainerRequestFilter` and `ContainerResponseFilter
 - [ ] `Location` header present on `POST /api/v1/rooms` response
 - [ ] `?type=` filtering is case-insensitive (test with mixed case)
 - [ ] GitHub repo is public
-- [ ] `README.md` is in the repo root and contains all 10 report answers
+- [ ] `README.md` is in the repo root and contains all 12 report answers
 - [ ] Video demo recorded (max 10 min, face + voice, Postman tests shown)
 - [ ] PDF report submitted to Blackboard
