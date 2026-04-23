@@ -55,6 +55,14 @@ public class SensorResource {
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         }
+
+        if (sensor.getName() == null || sensor.getName().trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ErrorResponse("Invalid sensor data", "Sensor name is required"))
+                    .type(MediaType.APPLICATION_JSON)
+                    .build();
+        }
+
         if (sensor.getRoomId() == null || DataStore.getInstance().getRoom(sensor.getRoomId()) == null) {
             throw new LinkedResourceNotFoundException(sensor.getRoomId());
         }

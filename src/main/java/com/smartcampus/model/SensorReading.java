@@ -4,13 +4,15 @@ public class SensorReading {
     private String id;
     private long timestamp;
     private double value;
+    private String description;
 
     public SensorReading() {}
 
-    public SensorReading(String id, long timestamp, double value) {
+    public SensorReading(String id, long timestamp, double value, String description) {
         this.id = id;
         this.timestamp = timestamp;
         this.value = value;
+        this.description = description;
     }
 
     public String getId() { return id; }
@@ -21,4 +23,7 @@ public class SensorReading {
 
     public double getValue() { return value; }
     public void setValue(double value) { this.value = value; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 }

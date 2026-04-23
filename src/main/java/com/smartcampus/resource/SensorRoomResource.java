@@ -20,9 +20,13 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.UUID;
 
+/**
+ * Resource for managing rooms. 
+ * Named SensorRoomResource to align with the coursework requirements document (line 112).
+ */
 @Path("/rooms")
 @Produces(MediaType.APPLICATION_JSON)
-public class RoomResource {
+public class SensorRoomResource {
 
     // GET /api/v1/rooms — list all rooms
     @GET

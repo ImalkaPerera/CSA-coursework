@@ -17,12 +17,18 @@ public class DiscoveryResource {
         Map<String, Object> response = new HashMap<>();
         response.put("version", "1.0");
         response.put("description", "Smart Campus Sensor & Room Management API");
-        response.put("contact", "admin@smartcampus.lk");
+        response.put("contact", "admin@smartcampus.ac.uk");
 
-        Map<String, String> links = new HashMap<>();
-        links.put("rooms", "/api/v1/rooms");
-        links.put("sensors", "/api/v1/sensors");
-        response.put("links", links);
+        Map<String, Object> links = new HashMap<>();
+        Map<String, String> roomsLink = new HashMap<>();
+        roomsLink.put("href", "/api/v1/rooms");
+        links.put("rooms", roomsLink);
+
+        Map<String, String> sensorsLink = new HashMap<>();
+        sensorsLink.put("href", "/api/v1/sensors");
+        links.put("sensors", sensorsLink);
+
+        response.put("_links", links);
 
         response.put("timestamp", System.currentTimeMillis());
         return Response.ok(response).build();

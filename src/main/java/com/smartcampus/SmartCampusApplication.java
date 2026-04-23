@@ -3,7 +3,7 @@ package com.smartcampus;
 import com.smartcampus.filter.LoggingFilter;
 import com.smartcampus.resource.DiscoveryResource;
 import com.smartcampus.resource.SensorResource;
-import com.smartcampus.resource.RoomResource;
+import com.smartcampus.resource.SensorRoomResource;
 import com.smartcampus.exception.GlobalExceptionMapper;
 import com.smartcampus.exception.LinkedResourceNotFoundExceptionMapper;
 import com.smartcampus.exception.RoomNotEmptyExceptionMapper;
@@ -26,7 +26,7 @@ public class SmartCampusApplication extends Application {
     public Set<Class<?>> getClasses() {
         Set<Class<?>> classes = new HashSet<>();
         classes.add(DiscoveryResource.class);
-        classes.add(RoomResource.class);
+        classes.add(SensorRoomResource.class);
         classes.add(SensorResource.class);
         classes.add(RoomNotEmptyExceptionMapper.class);
         classes.add(LinkedResourceNotFoundExceptionMapper.class);
