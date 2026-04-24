@@ -108,7 +108,7 @@ curl -X GET http://localhost:8080/api/v1/sensors/<sensorId>/readings
 curl -i -X DELETE http://localhost:8080/api/v1/rooms/<roomId>
 ```
 
-### Report Answers
+## Report Answers
 
 ### Part 1.1: JAX-RS Lifecycle & Thread Safety
 
@@ -124,9 +124,9 @@ The tricky part is that this shared store gets hit by multiple threads at the sa
 
 HATEOAS stands for Hypermedia as the Engine of Application State, and it sits at the top of the Richardson Maturity Model for REST APIs. The basic idea is that instead of just returning raw data, your API responses also include links that tell the client what it can do next.
 
-The reason this matters is decoupling. Without HATEOAS, client developers have to read through static documentation to know that `/api/v1/rooms` exists. If the server ever changes those paths, every client breaks. With HATEOAS, the client just calls the root endpoint and gets back the links it needs — no hardcoded paths, no outdated docs to worry about.
+The reason this matters is decoupling. Without HATEOAS, client developers have to read through static documentation to know that `/api/v1/rooms` exists. If the server ever changes those paths, every client breaks. With HATEOAS, the client just calls the root endpoint and gets back the links it needs with no hardcoded paths and no outdated docs to worry about.
 
-For this project, the `GET /api/v1` discovery endpoint returns:
+For this project, the `GET /api/v1` discovery endpoint returns something like this:
 
 ```json
 {
@@ -154,24 +154,19 @@ For this reason, I chose to return full room objects in the collection response.
 
 ### Part 2.2: Idempotency in DELETE Operations
 
-Yes, DELETE is idempotent in this implementation. Idempotency means that calling the same operation multiple times produces the same server state as calling it once — it doesn't matter how many times you repeat it, the end result is the same.
+Yes, `DELETE` is idempotent in this implementation. Idempotency means that calling the same operation multiple times produces the same server state as calling it once. It does not matter how many times you repeat it, the end result is the same.
 
-In practice, here's what happens:
+In practice, here is what happens. The first `DELETE` request finds the room, removes it, and the server returns 204 No Content. The second `DELETE` request on the same ID finds nothing there, so the server returns 404 Not Found. The response codes are different, but the state of the server is identical both times because the room does not exist in either case. That is what makes it idempotent. This is actually very useful in real systems because if a client sends a `DELETE` and the network drops before the response arrives, it can safely retry without worrying about accidentally deleting something twice.
 
-1. **First DELETE request:** The room exists, gets removed, server returns 204 No Content.
-2. **Second DELETE request (same ID):** The room is already gone, server returns 404 Not Found.
-
-The response codes are different, but the state of the server is identical both times — the room doesn't exist. That's what makes it idempotent. This is actually very useful in real systems because if a client sends a DELETE and the network drops before the response arrives, it can safely retry without worrying about accidentally deleting something twice.
-
-It's also worth distinguishing idempotency from safety. GET is both safe and idempotent — it doesn't change anything on the server at all. DELETE is idempotent but not safe, because that first call does change the server state by removing the resource. The subsequent calls just don't change it any further.
+It is also worth distinguishing idempotency from safety. `GET` is both safe and idempotent because it does not change anything on the server at all. `DELETE` is idempotent but not safe, because that first call does change the server state by removing the resource. The subsequent calls just do not change it any further.
 
 ---
 
 ### Part 3.1: Content-Type Enforcement (@Consumes)
 
-The `@Consumes(MediaType.APPLICATION_JSON)` annotation is basically a contract between the server and the client — it says "this endpoint only accepts JSON." If a client sends a request with a different Content-Type, like `text/plain` or `application/xml`, JAX-RS catches that mismatch before the request even reaches my code.
+The `@Consumes(MediaType.APPLICATION_JSON)` annotation is basically a contract between the server and the client. It says this endpoint only accepts JSON. If a client sends a request with a different Content-Type like `text/plain` or `application/xml`, JAX-RS catches that mismatch before the request even reaches my code.
 
-The framework automatically responds with **HTTP 415 Unsupported Media Type**. This is actually a nice feature because the rejection happens at the routing layer, not in the business logic. My resource method never runs, so there's no risk of a bad payload getting half-processed or causing an unexpected exception. It also means the client gets a clear, standard error code that tells them exactly what went wrong — they sent the wrong format, not the wrong data.
+The framework automatically responds with HTTP 415 Unsupported Media Type. This is actually a nice feature because the rejection happens at the routing layer, not in the business logic. My resource method never runs, so there is no risk of a bad payload getting half-processed or causing an unexpected exception. It also means the client gets a clear, standard error code that tells them exactly what went wrong. They sent the wrong format, not the wrong data.
 
 From a stability standpoint, this prevents garbage data from reaching the Jackson deserializer, which could otherwise throw parsing exceptions and potentially crash the request handler if not properly managed.
 
@@ -179,9 +174,9 @@ From a stability standpoint, this prevents garbage data from reaching the Jackso
 
 ### Part 3.2: Filtering Design (Query vs. Path Parameters)
 
-A useful way to think about this is: the URL path identifies *what* you're looking at, and query parameters describe *how* you want to see it. The path `/api/v1/sensors` refers to the sensors collection. Adding `?type=CO2` doesn't change what resource you're accessing — it just filters the view of that resource.
+A useful way to think about this is that the URL path identifies what you are looking at, and query parameters describe how you want to see it. The path `/api/v1/sensors` refers to the sensors collection. Adding `?type=CO2` does not change what resource you are accessing, it just filters the view of that resource.
 
-Using query parameters for filtering is better than putting the filter in the path for a few reasons. First, they're optional by nature — `GET /api/v1/sensors` still works perfectly without any filter, returning everything. Second, they combine easily: adding a second filter is just `?type=CO2&status=ACTIVE` — no need to invent a new URL structure. Third, a URL like `/api/v1/sensors/type/CO2` is misleading — it implies "CO2" is some kind of sub-resource under "type", which it isn't. It's just an attribute value being used as a search term.
+Using query parameters for filtering is better than putting the filter in the path for a few reasons. First, they are optional by nature, so `GET /api/v1/sensors` still works perfectly without any filter and returns everything. Second, they combine easily because adding a second filter is just `?type=CO2&status=ACTIVE` with no need to invent a new URL structure. Third, a URL like `/api/v1/sensors/type/CO2` is misleading because it implies `CO2` is some kind of sub-resource under `type`, which it is not. It is just an attribute value being used as a search term.
 
 Query parameters keep the resource hierarchy clean and make the API much easier to extend later.
 
@@ -191,21 +186,21 @@ Query parameters keep the resource hierarchy clean and make the API much easier 
 
 When I first looked at how to handle the `/sensors/{id}/readings` path, the obvious approach would have been to just add more `@Path` annotations to the existing `SensorResource` class. But that approach has a serious problem as the API grows.
 
-If every nested endpoint lives in one controller, that class balloons in size very quickly. You end up with a single file handling sensor creation, sensor lookup, sensor filtering, reading history, posting readings, and anything else that gets added later. The class just keeps growing and it becomes a nightmare to navigate. This is what people call a "God Class", and I wanted to avoid that.
+If every nested endpoint lives in one controller, that class balloons in size very quickly. You end up with a single file handling sensor creation, sensor lookup, sensor filtering, reading history, posting readings, and anything else that gets added later. The class just keeps growing and it becomes a nightmare to navigate. This is what people call a God Class, and I wanted to avoid that.
 
 Instead, I used a sub-resource locator method in `SensorResource` that simply returns an instance of `SensorReadingResource` when the path hits `{sensorId}/readings`. JAX-RS then hands off the request to that class to handle from there.
 
-`SensorResource` stays focused on sensor-level operations and `SensorReadingResource` stays focused on reading history — each class has one clear job. Testing is also much easier because I can write unit tests for `SensorReadingResource` on its own, without needing to set up the entire sensor registry. The locator also passes the `sensorId` directly into the sub-resource's constructor, so the readings class always knows which sensor's context it's operating in without having to extract path parameters again.
+`SensorResource` stays focused on sensor-level operations and `SensorReadingResource` stays focused on reading history, so each class has one clear job. Testing is also much easier because I can write unit tests for `SensorReadingResource` on its own without needing to set up the entire sensor registry. The locator also passes the `sensorId` directly into the sub-resource's constructor, so the readings class always knows which sensor's context it is operating in without having to extract path parameters again. If the campus system later needed to track maintenance logs or calibration records per sensor, each of those could get its own dedicated class with its own locator, so the structure scales cleanly without ever going back to a monolithic controller.
 
 ---
 
 ### Part 5.2: Semantic Accuracy (422 vs. 404)
 
-Honestly this distinction confused me at first — 404 felt like the obvious choice. But once I thought about it more carefully, 422 makes a lot more sense here.
+Honestly this distinction confused me at first because 404 felt like the obvious choice. But once I thought about it more carefully, 422 makes a lot more sense here.
 
-A 404 means the thing you asked for doesn't exist at this URL. If someone calls `GET /api/v1/rooms/FAKE-999` and that room doesn't exist, 404 is correct. But when a client posts a new sensor with a `roomId` that doesn't exist, the situation is different. The URL they're calling — `POST /api/v1/sensors` — is completely valid. The server understood the request. The JSON was well-formed. The problem is that the `roomId` inside the body references a room that doesn't exist in the system.
+A 404 means the thing you asked for does not exist at this URL. If someone calls `GET /api/v1/rooms/FAKE-999` and that room does not exist, 404 is correct. But when a client posts a new sensor with a `roomId` that does not exist, the situation is different. The URL they are calling, which is `POST /api/v1/sensors`, is completely valid. The server understood the request. The JSON was well-formed. The problem is that the `roomId` inside the body references a room that does not exist in the system.
 
-Returning 404 in this case would be genuinely confusing — the client would look at their URL and think the `/sensors` endpoint is missing, which it isn't. A **422 Unprocessable Entity** tells them clearly: "I understood your request, but I can't act on it because the data inside it violates a business rule." That's a much more useful signal for developers debugging an integration.
+Returning 404 in this case would be genuinely confusing because the client would look at their URL and think the `/sensors` endpoint is missing, which it is not. A 422 Unprocessable Entity tells them clearly that the server understood the request but cannot act on it because the data inside violates a business rule. That is a much more useful signal for developers debugging an integration.
 
 ---
 
@@ -213,24 +208,19 @@ Returning 404 in this case would be genuinely confusing — the client would loo
 
 Returning a raw Java stack trace in an API response is a fairly serious security mistake, even though it might seem harmless on the surface. The information in a stack trace gives an attacker a surprisingly useful map of the system.
 
-The main risks are:
+The main risks are as follows. First, the trace shows full package and class names, which reveals how the application is organised internally and which code paths handle which operations. Second, stack traces include the names and sometimes versions of third-party libraries like Jersey or Jackson, and once an attacker knows the exact version they can look up known CVEs for that version and craft targeted exploits. Third, certain exceptions like `FileNotFoundException` include the actual file paths on the server, revealing the directory structure of the deployment. Fourth, if an attacker deliberately sends malformed input to trigger an exception, the trace tells them exactly which layer rejected it and how far the input got into the system, so they can adjust their attack and try again with a more refined payload.
 
-1. **Internal structure exposure** — the trace shows full package and class names, which reveals how the application is organised internally and which code paths handle which operations.
-2. **Library version fingerprinting** — stack traces include the names and sometimes versions of third-party libraries like Jersey or Jackson. Once an attacker knows the exact version, they can look up known CVEs for that version and craft targeted exploits.
-3. **File system paths** — certain exceptions, like `FileNotFoundException`, include the actual file paths on the server, revealing the directory structure of the deployment.
-4. **Injection refinement** — if an attacker deliberately sends malformed input to trigger an exception, the trace tells them exactly which layer rejected it and how far the input got into the system. They can then adjust their attack and try again.
-
-The fix is straightforward: the global `ExceptionMapper<Throwable>` catches everything unexpected, logs the full technical details on the server side where only the development team can see them, and returns a clean generic JSON response to the client — something like `{ "error": "An unexpected error occurred" }`. The client gets a useful signal without any internal details leaking out.
+The fix is straightforward. The global `ExceptionMapper<Throwable>` catches everything unexpected, logs the full technical details on the server side where only the development team can see them, and returns a clean generic JSON response to the client. The client gets a useful signal without any internal details leaking out.
 
 ---
 
 ### Part 5.5: Cross-Cutting Concerns & Filters
 
-Logging is one of those things that needs to happen for every single request, regardless of what the request is doing. It has nothing to do with creating rooms or registering sensors — it's purely about observability. That kind of concern, which cuts across the whole application without belonging to any one part of it, is called a cross-cutting concern.
+Logging is one of those things that needs to happen for every single request, regardless of what the request is doing. It has nothing to do with creating rooms or registering sensors. It is purely about observability. That kind of concern, which cuts across the whole application without belonging to any one part of it, is called a cross-cutting concern.
 
-The wrong way to handle it is to paste a `Logger.info()` call into every resource method. That works initially, but it creates problems over time. If the log format needs to change, you're editing dozens of methods. If someone adds a new endpoint and forgets to add the log statement, that endpoint goes untracked. The logging becomes inconsistent and unreliable.
+The wrong way to handle it is to paste a `Logger.info()` call into every resource method. That works initially but creates problems over time. If the log format needs to change, you are editing dozens of methods. If someone adds a new endpoint and forgets to add the log statement, that endpoint goes untracked and the logging becomes inconsistent.
 
-Using a `ContainerRequestFilter` and `ContainerResponseFilter` solves this cleanly. The filter runs automatically for every request and response — there's no way to accidentally skip it. The log format is defined in one place, so changes take seconds. And because the filter is its own class, it can be tested independently of the resource methods it wraps. This is essentially the Decorator pattern in practice: you're adding behaviour (logging) around the core logic without touching the core logic itself.
+Using a `ContainerRequestFilter` and `ContainerResponseFilter` solves this cleanly. The filter runs automatically for every request and response so there is no way to accidentally skip it. The log format is defined in one place, meaning changes take seconds rather than hours. Because the filter is its own class, it can also be tested independently of the resource methods it wraps. This is essentially the Decorator pattern in practice, where you add behaviour like logging around the core logic without touching the core logic itself.
 
 ## Final Checklist
 - [ ] `mvn clean package` succeeds
