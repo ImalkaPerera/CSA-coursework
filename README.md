@@ -24,8 +24,8 @@ mvn exec:java
 ### Option 2: NetBeans IDE (Tomcat Server)
 1. Open NetBeans.
 2. Select **File > Open Project**.
-3. Navigate to the downloaded `CSA-CW` folder and select it (NetBeans will detect it as a Maven project automatically).
-4. In the Projects explorer pane, right-click on the `CSA-CW` project name and select **Run**. NetBeans will automatically build and deploy the application to its configured Tomcat server.
+3. Navigate to the downloaded `CSA-coursework` folder and select it (NetBeans will detect it as a Maven project automatically).
+4. In the Projects explorer pane, right-click on the `CSA-coursework` project name and select **Run**. NetBeans will automatically build and deploy the application to its configured Tomcat server.
 5. The API will be available at `http://localhost:8080/api/v1/` (assuming Tomcat is running on port 8080).
 
 ### Option 3: Standalone Tomcat Server (WAR Deployment)
