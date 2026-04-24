@@ -1,15 +1,15 @@
 # Smart Campus API
 
 ## Overview
-Smart Campus API is a JAX-RS REST service for managing rooms, sensors, and sensor readings in a university campus environment. It uses in-memory data structures only, which keeps the coursework simple to run, test, and demonstrate.
+Smart Campus API is a JAX-RS REST service built with Jersey for managing rooms, sensors, and sensor readings in a university campus environment. The API is versioned and accessible at `/api/v1` via the `@ApplicationPath` configuration. It uses in-memory data structures only (no database), which keeps the project lightweight and easy to run, test, and demonstrate.
 
 ## How to Build and Run
 
 ### Option 1: Terminal (Embedded Grizzly Server)
 **Clone the project:**
 ```bash
-git clone https://github.com/thiviru7715/CSA-CW.git
-cd CSA-CW
+git clone https://github.com/ImalkaPerera/CSA-coursework.git
+cd CSA-coursework
 ```
 **Compile the project:**
 ```bash
@@ -77,7 +77,7 @@ curl -X GET http://localhost:8080/api/v1/rooms
 ```bash
 curl -i -X POST http://localhost:8080/api/v1/sensors \
   -H "Content-Type: application/json" \
-  -d '{"type":"CO2","status":"ACTIVE","currentValue":400.5,"roomId":"<room-id>"}'
+  -d '{"name":"CO2 Sensor","type":"CO2","status":"ACTIVE","currentValue":400.5,"roomId":"<room-id>"}'
 ```
 
 ### 5. List sensors
@@ -222,13 +222,4 @@ The wrong way to handle it is to paste a `Logger.info()` call into every resourc
 
 Using a `ContainerRequestFilter` and `ContainerResponseFilter` solves this cleanly. The filter runs automatically for every request and response so there is no way to accidentally skip it. The log format is defined in one place, meaning changes take seconds rather than hours. Because the filter is its own class, it can also be tested independently of the resource methods it wraps. This is essentially the Decorator pattern in practice, where you add behaviour like logging around the core logic without touching the core logic itself.
 
-## Final Checklist
-- [ ] `mvn clean package` succeeds
-- [ ] Server starts on `localhost:8080`
-- [ ] All 5+ curl commands work as expected
-- [ ] `Location` header present on `POST /api/v1/rooms` response
-- [ ] `?type=` filtering is case-insensitive (test with mixed case)
-- [ ] GitHub repo is public
-- [ ] `README.md` is in the repo root and contains all 10 report answers
-- [ ] Video demo recorded (max 10 min, face + voice, Postman tests shown)
-- [ ] PDF report submitted to Blackboard
+
